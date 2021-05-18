@@ -1,0 +1,1 @@
+# kafka-schema-registry
