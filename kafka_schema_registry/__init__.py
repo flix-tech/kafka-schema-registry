@@ -104,7 +104,12 @@ def publish_schemas(
     return (key_schema_id, value_schema_id)
 
 
-def create_topic(bootstrap_servers, topic_name, num_partitions: int):
+def create_topic(
+    bootstrap_servers,
+    topic_name,
+    num_partitions: int,
+    replication_factor: int,
+    ):
     """Create a topic with the given number of partitions.
 
     If the topic already exists, nothing happens.
@@ -116,7 +121,9 @@ def create_topic(bootstrap_servers, topic_name, num_partitions: int):
     topic_name : str
         The name of the topic
     num_partitions : int
-        The number of partitions, default to config.KAFKA_PARTITIONS
+        The number of partitions
+    replication_factor : int
+        The replication factor for this topic
     """
     try:
         # WORKAROUND: see https://github.com/dpkp/kafka-python/pull/2048
@@ -131,7 +138,8 @@ def create_topic(bootstrap_servers, topic_name, num_partitions: int):
             NewTopic(
                 name=topic_name,
                 num_partitions=num_partitions,
-                replication_factor=3)
+                replication_factor=replication_factor,
+                )
         ])
         logger.info(f'Topic created: {topic_name}')
     except TopicAlreadyExistsError:
