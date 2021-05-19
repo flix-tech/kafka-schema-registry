@@ -20,5 +20,7 @@ setup(
         'requests',
         # test dependencies
         'pytest',
+        'responses',
+        'pytest-cov',
     ],
 )

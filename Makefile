@@ -14,4 +14,4 @@ start-redpanda:
 
 .PHONY: test
 test:
-	python3 -m pytest
+	python3 -m pytest --cov=kafka_schema_registry --cov-report html

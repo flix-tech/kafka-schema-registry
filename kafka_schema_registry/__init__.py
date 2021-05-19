@@ -75,11 +75,10 @@ def publish_schemas(
     # https://docs.confluent.io/current/schema-registry/develop/api.html
     if value_schema is not None:
         url_value = f'{avro_schema_registry}/subjects/{topic_name}-value/versions' # NOQA
-        data = {"schema": value_schema}
         value_resp = request(
             'POST',
             url_value,
-            data=json.dumps(data),
+            data=json.dumps({"schema": value_schema}),
             headers={
                 'Content-Type': 'application/json'
                 }
@@ -94,7 +93,7 @@ def publish_schemas(
         key_resp = request(
             'POST',
             url_key,
-            data={"schema": key_schema},
+            data=json.dumps({"schema": key_schema}),
             headers={
                 'Content-Type': 'application/json'
                 }
