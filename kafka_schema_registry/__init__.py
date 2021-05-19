@@ -104,8 +104,8 @@ def publish_schemas(
 
 
 def create_topic(
-    bootstrap_servers,
-    topic_name,
+    bootstrap_servers: List[str],
+    topic_name: str,
     num_partitions: int,
     replication_factor: int,
     ):
@@ -146,10 +146,13 @@ def create_topic(
 
 
 def prepare_producer(
-    bootstrap_servers,
-    topic_name,
-    value_schema_path=None,
-    key_schema_path=None,
+    bootstrap_servers: List[str],
+    avro_schema_registry: str,
+    topic_name: str,
+    num_partitions: int,
+    replication_factor: int,
+    value_schema: dict=None,
+    key_schema: dict=None,
         ):
     """Ensure the topic and the schema exist and returns a producer for it.
 
@@ -161,61 +164,67 @@ def prepare_producer(
     ----------
     bootstrap_servers : list of str
         The list of Kafka servers
+    avro_schema_registry : str
+        The URL of the schema registry
     topic_name : str
         name of the topic to write to
-    value_schema_path : str, optional
-        The path of the avsc file containing the value schema, or None
+    num_partitions : int
+        The number of partitions
+    replication_factor : int
+        The replication factor for this topic
+    value_schema : dict, optional
+        The value schema, or None
     key_schema_path : str, optional
-        The path of the avsc file containing the key schema, or None
+        The key schema, or None
     Returns
     -------
     KafkaProducer
         A producer ready to be used e.g. by calling send()
     """
-    if value_schema_path is None and key_schema_path is None:
-        raise ValueError('No key nor value schema path was given')
+    if value_schema is None and key_schema is None:
+        raise ValueError('No key nor value schema was given')
 
-    create_topic(topic_name)
+    create_topic(
+        bootstrap_servers,
+        topic_name,
+        num_partitions,
+        replication_factor,
+    )
 
-    value_schema = None
     parsed_value_schema = None
     default_values = {}
-    if value_schema_path is not None:
-        with open(value_schema_path) as sf:
-            value_schema = json.load(sf)
-            parsed_value_schema = parse_schema(value_schema)
-            # store the default values to remove
-            # the values from the messages when identical
-            default_values = {
-                field['name']: field['default']
-                for field in parsed_value_schema['fields']
-                if 'default' in field
-            }
+    if value_schema is not None:
+        parsed_value_schema = parse_schema(value_schema)
+        # store the default values to remove
+        # the values from the messages when identical
+        default_values = {
+            field['name']: field['default']
+            for field in parsed_value_schema['fields']
+            if 'default' in field
+        }
 
-    key_schema = None
     parsed_key_schema = None
     default_keys = {}
-    if key_schema_path is not None:
-        with open(key_schema_path) as sf:
-            key_schema = json.load(sf)
-            parsed_key_schema = parse_schema(key_schema)
-            # store the default values to remove
-            # the values from the messages when identical
-            default_keys = {
-                field['name']: field['default']
-                for field in parsed_key_schema['fields']
-                if 'default' in field
-            }
+    if key_schema is not None:
+        parsed_key_schema = parse_schema(key_schema)
+        # store the default values to remove
+        # the values from the messages when identical
+        default_keys = {
+            field['name']: field['default']
+            for field in parsed_key_schema['fields']
+            if 'default' in field
+        }
 
     key_schema_id, value_schema_id = publish_schemas(
         topic_name,
+        avro_schema_registry,
         value_schema=(
             json.dumps(value_schema)
             if value_schema is not None else None),
         key_schema=(
             json.dumps(key_schema)
             if key_schema is not None else None),
-        )
+    )
 
     def avro_record_value_writer(
         record,
@@ -249,9 +258,9 @@ def prepare_producer(
     return KafkaProducer(
         bootstrap_servers=bootstrap_servers,
         value_serializer=(
-            avro_record_value_writer if value_schema_path else None),
+            avro_record_value_writer if value_schema else None),
         key_serializer=(
-            avro_record_key_writer if key_schema_path else None),
+            avro_record_key_writer if key_schema else None),
         # compression, note that is done on a whole batch
         compression_type='gzip',
         # time to get an initial answer from the brokers when initializing
