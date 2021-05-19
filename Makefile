@@ -14,4 +14,6 @@ start-redpanda:
 
 .PHONY: test
 test:
-	python3 -m pytest --cov=kafka_schema_registry --cov-report html
+	python3 -m venv .venv
+	.venv/bin/pip install -r requirements.txt
+	.venv/bin/pytest --cov=kafka_schema_registry --cov-report html

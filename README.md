@@ -34,3 +34,10 @@ producer = prepare_producer(
 producer.send(topic_name, {'age': 34})
 producer.send(topic_name, {'age': 9000, 'name': 'john'})
 ```
+
+## Run the test
+
+The test requires Docker in order to start a local Redpanda instance.
+
+* `make start-redpanda` to start the server
+* `make test` to configure a virtualenv and run the tests
