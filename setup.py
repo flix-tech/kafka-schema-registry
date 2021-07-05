@@ -19,4 +19,5 @@ setup(
         'kafka-python',
         'requests',
     ],
+    license='MIT',
 )
