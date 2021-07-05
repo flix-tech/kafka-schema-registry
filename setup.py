@@ -18,9 +18,5 @@ setup(
         'fastavro',
         'kafka-python',
         'requests',
-        # test dependencies
-        'pytest',
-        'responses',
-        'pytest-cov',
     ],
 )
