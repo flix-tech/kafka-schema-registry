@@ -9,25 +9,10 @@ jobs:
     name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
-    services:
-      redpanda:
-        image: vectorized/redpanda:latest
-        options: >-
-            start
-            --overprovisioned
-            --smp 1
-            --memory 128M
-            --reserve-memory 0M
-            --node-id 0
-            --check=false
-        ports:
-          - 9092:9092
-
     strategy:
       fail-fast: false
       matrix:
         python-version:
-          - 3.6
           - 3.7
           - 3.8
           - 3.9
@@ -40,14 +25,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-        #    - name: Prepare virtual environment
-        #      run: make venv
-
     - name: Run tests
       run: make test
 
-      #    - name: Run linter
-      #      run: make lint
+    - name: Run linter
+      run: make lint
 
 #  publish:
 #    name: Publish package to PyPI
