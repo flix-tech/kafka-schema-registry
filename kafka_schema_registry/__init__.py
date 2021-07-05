@@ -42,8 +42,8 @@ def delete_topic(bootstrap_servers: List[str], topic_name: str):
 def publish_schemas(
     topic_name: str,
     avro_schema_registry: str,
-    value_schema: dict=None,
-    key_schema: dict=None,
+    value_schema: dict = None,
+    key_schema: dict = None,
         ):
     """Publish the schema for a given topic.
 
@@ -108,7 +108,7 @@ def create_topic(
     topic_name: str,
     num_partitions: int,
     replication_factor: int,
-    ):
+):
     """Create a topic with the given number of partitions.
 
     If the topic already exists, nothing happens.
@@ -151,8 +151,8 @@ def prepare_producer(
     topic_name: str,
     num_partitions: int,
     replication_factor: int,
-    value_schema: dict=None,
-    key_schema: dict=None,
+    value_schema: dict = None,
+    key_schema: dict = None,
         ):
     """Ensure the topic and the schema exist and returns a producer for it.
 
