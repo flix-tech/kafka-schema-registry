@@ -1,2 +1,11 @@
-# pytest coverage
+__pycache__/
+*.py[cod]
+
+build/
+dist/
+*.egg-info/
+
+htmlcov/
 .coverage
+
+venv/
