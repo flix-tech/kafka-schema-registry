@@ -18,12 +18,10 @@ def has_kafka():
     return True if result == 0 else False
 
 
-
-
 SAMPLE_SCHEMA = {
   "type": "record",
   "name": "TestType",
-  "fields" : [
+  "fields": [
     {"name": "age", "type": "int"},
     {"name": "name", "type": ["null", "string"]}
   ]
@@ -37,6 +35,7 @@ def test_check_schema_presence():
             'http://schemaregistry',
         )
     assert str(exc.value) == 'No key nor value schema was given'
+
 
 @responses.activate
 def test_publish_value_schema():
@@ -55,7 +54,6 @@ def test_publish_value_schema():
     )
     assert json.loads(responses.calls[0].request.body) == dict(schema=schema)
     assert (k_id, v_id) == (None, 2)
-
 
 
 @responses.activate
@@ -88,23 +86,23 @@ def test_publish_messages():
         status=200)
     producer = prepare_producer(
         ['localhost:9092'],
-        f'http://schemaregistry',
+        'http://schemaregistry',
         topic_name,
         1,
         1,
         value_schema=SAMPLE_SCHEMA,
     )
     # the message does not match
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         producer.send(topic_name, {'e': 34})
-    
+
     producer.send(topic_name, {'age': 34})
     producer.send(topic_name, {'age': 9000, 'name': 'john'})
 
 
 @pytest.mark.skipif(not has_kafka(), reason="No Kafka Cluster running")
 def test_topic_creation_deletion():
-    topic_name = f'test-topic-{uuid.uuid4()}' 
+    topic_name = f'test-topic-{uuid.uuid4()}'
     with pytest.raises(UnknownTopicOrPartitionError):
         delete_topic(['localhost:9092'], topic_name)
     create_topic(['localhost:9092'], topic_name, 1, 1)

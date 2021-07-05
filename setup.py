@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 meta = {}
 exec(open('./kafka_schema_registry/version.py').read(), meta)
