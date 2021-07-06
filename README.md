@@ -9,16 +9,16 @@ It takes care of:
 
 ## Usage
 
-```python3
+```python
 from kafka_schema_registry import prepare_producer
 
 SAMPLE_SCHEMA = {
-"type": "record",
-"name": "TestType",
-"fields" : [
-    {"name": "age", "type": "int"},
-    {"name": "name", "type": ["null", "string"]}
-]
+    "type": "record",
+    "name": "TestType",
+    "fields" : [
+        {"name": "age", "type": "int"},
+        {"name": "name", "type": ["null", "string"]}
+    ]
 }
 
 
