@@ -1,6 +1,7 @@
 # kafka-schema-registry
 
-This library allows you to create topics on Kafka associated with a Confluent schema, and publish messages on them.
+This library allows you to create topics on Kafka topics, associated with a
+Confluent Schema Registry, and publish messages on them.
 
 It takes care of:
 * creating the topic
@@ -46,7 +47,7 @@ producer.send(topic_name, {'age': 34})
 producer.send(topic_name, {'age': 9000, 'name': 'john'})
 ```
 
-## Run the test
+## Running the tests
 
 The test requires Docker in order to start a local Redpanda instance.
 
