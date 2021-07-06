@@ -7,6 +7,17 @@ It takes care of:
 * publishing the associated schema (or updating an existing one)
 * serializing and publishing messages to Kafka
 
+It works with [kafka-python][]
+
+[kafka-python]: https://github.com/dpkp/kafka-python
+
+
+## Installing
+
+```sh
+pip install kakfa_schema_registry
+```
+
 ## Usage
 
 ```python
