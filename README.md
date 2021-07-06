@@ -16,7 +16,7 @@ It works with [kafka-python][]
 ## Installing
 
 ```sh
-pip install kakfa_schema_registry
+pip install kakfa-schema-registry
 ```
 
 ## Usage

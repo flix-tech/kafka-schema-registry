@@ -6,7 +6,7 @@ meta['long_description'] = open('./README.md').read()
 
 
 setup(
-    name='kafka_schema_registry',
+    name='kafka-schema-registry',
     version=meta['__VERSION__'],
     description='Kafka and schema registry integration',
     long_description=meta['long_description'],

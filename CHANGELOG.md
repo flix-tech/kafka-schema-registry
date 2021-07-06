@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.3] -- 2021-07-06
+
+* Fixed package name
+
 ## [0.0.2] -- 2021-07-06
 
 * Dummy release to test gh-actions to pypi
