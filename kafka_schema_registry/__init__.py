@@ -2,12 +2,17 @@ from io import BytesIO
 import json
 import logging
 import struct
+import time
 from typing import List
 
 from fastavro import parse_schema, schemaless_writer
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
-from kafka.errors import TopicAlreadyExistsError, NoBrokersAvailable
+from kafka.errors import (
+        TopicAlreadyExistsError,
+        NoBrokersAvailable,
+        NodeNotReadyError
+      )
 from requests import request
 
 logger = logging.getLogger(__name__)
@@ -35,7 +40,13 @@ def delete_topic(bootstrap_servers: List[str], topic_name: str):
     topic_name : str
         The name of the topic to delete
     """
-    admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    admin_client = None
+    try:
+        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    except NodeNotReadyError:
+        logger.warning(f'Failed to delete topic: {topic_name}')
+        retry_kafka_admin_client(bootstrap_servers=bootstrap_servers)
+
     admin_client.delete_topics([topic_name])
 
 
@@ -132,17 +143,25 @@ def create_topic(
         logger.warning('Error instantiating the client, should be solved by'
                        'https://github.com/dpkp/kafka-python/pull/2048')
         return
-    try:
-        admin_client.create_topics([
-            NewTopic(
-                name=topic_name,
-                num_partitions=num_partitions,
-                replication_factor=replication_factor,
-                )
-        ])
-        logger.info(f'Topic created: {topic_name}')
-    except TopicAlreadyExistsError:
-        logger.info(f'Not recreating existing topic {topic_name}')
+    except NodeNotReadyError:
+        try:
+            admin_client = retry_kafka_admin_client(
+                    bootstrap_servers=bootstrap_servers)
+        except NodeNotReadyError:
+            logger.warning(f'Failed to create topic: {topic_name}')
+
+    if admin_client is not None:
+        try:
+            admin_client.create_topics([
+                NewTopic(
+                    name=topic_name,
+                    num_partitions=num_partitions,
+                    replication_factor=replication_factor,
+                    )
+            ])
+            logger.info(f'Topic created: {topic_name}')
+        except TopicAlreadyExistsError:
+            logger.info(f'Not recreating existing topic {topic_name}')
 
 
 def prepare_producer(
@@ -164,6 +183,7 @@ def prepare_producer(
     ----------
     bootstrap_servers : list of str
         The list of Kafka servers
+
     avro_schema_registry : str
         The URL of the schema registry
     topic_name : str
@@ -269,3 +289,21 @@ def prepare_producer(
         # accumulate messages for these ms before sending them
         linger_ms=1000,
         )
+
+
+def retry_kafka_admin_client(bootstrap_servers, retries=3, delay=5):
+    retry = 0
+    admin_client = None
+
+    while True:
+        try:
+            admin_client = KafkaAdminClient(
+                    bootstrap_servers=bootstrap_servers)
+            break
+        except NodeNotReadyError:
+            retry += 1
+            if retry > retries:
+                raise
+            time.sleep(delay)
+
+    return admin_client
