@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.4] -- 2022-01-28
+
+* Propagate extra arguments to the Kafka library (e.g. for authentication)
+
 ## [0.0.3] -- 2021-07-06
 
 * Fixed package name

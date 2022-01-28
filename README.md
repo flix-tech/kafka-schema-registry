@@ -8,7 +8,7 @@ It takes care of:
 * publishing the associated schema (or updating an existing one)
 * serializing and publishing messages to Kafka
 
-It works with [kafka-python][]
+It works with [kafka-python][], and extra arguments are forwarded to it.
 
 [kafka-python]: https://github.com/dpkp/kafka-python
 

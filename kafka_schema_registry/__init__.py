@@ -108,6 +108,7 @@ def create_topic(
     topic_name: str,
     num_partitions: int,
     replication_factor: int,
+    **kwargs,
 ):
     """Create a topic with the given number of partitions.
 
@@ -127,7 +128,10 @@ def create_topic(
     try:
         # WORKAROUND: see https://github.com/dpkp/kafka-python/pull/2048
         # when done remove this try catch
-        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+        admin_client = KafkaAdminClient(
+            bootstrap_servers=bootstrap_servers,
+            **kwargs,
+        )
     except NoBrokersAvailable:
         logger.warning('Error instantiating the client, should be solved by'
                        'https://github.com/dpkp/kafka-python/pull/2048')
@@ -153,6 +157,7 @@ def prepare_producer(
     replication_factor: int,
     value_schema: dict = None,
     key_schema: dict = None,
+    **kwargs,
         ):
     """Ensure the topic and the schema exist and returns a producer for it.
 
@@ -189,6 +194,7 @@ def prepare_producer(
         topic_name,
         num_partitions,
         replication_factor,
+        **kwargs,
     )
 
     parsed_value_schema = None
@@ -268,4 +274,6 @@ def prepare_producer(
         api_version_auto_timeout_ms=10 * 1000,
         # accumulate messages for these ms before sending them
         linger_ms=1000,
+        # propagate extra arguments
+        **kwargs,
         )
