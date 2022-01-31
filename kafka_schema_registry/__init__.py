@@ -137,6 +137,7 @@ def create_topic(
             **kwargs,
         )
     except (NoBrokersAvailable, UnrecognizedBrokerVersion) as exc:
+        logger.warning(exc)
         logger.warning('Error instantiating the client, should be solved by'
                        'https://github.com/dpkp/kafka-python/pull/2048')
         return
