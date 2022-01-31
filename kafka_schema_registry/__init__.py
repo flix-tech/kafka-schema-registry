@@ -7,7 +7,11 @@ from typing import List
 from fastavro import parse_schema, schemaless_writer
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
-from kafka.errors import TopicAlreadyExistsError, NoBrokersAvailable
+from kafka.errors import (
+    TopicAlreadyExistsError,
+    NoBrokersAvailable,
+    UnrecognizedBrokerVersion,
+)
 from requests import request
 
 logger = logging.getLogger(__name__)
@@ -132,7 +136,7 @@ def create_topic(
             bootstrap_servers=bootstrap_servers,
             **kwargs,
         )
-    except NoBrokersAvailable:
+    except NoBrokersAvailable, UnrecognizedBrokerVersion:
         logger.warning('Error instantiating the client, should be solved by'
                        'https://github.com/dpkp/kafka-python/pull/2048')
         return
