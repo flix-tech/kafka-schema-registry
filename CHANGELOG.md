@@ -1,5 +1,9 @@
 # Changelog
 
+## [unreleased] -- xxxx-xx-xx
+
+* Added Python 3.10 to test suite
+
 ## [0.0.4] -- 2022-01-28
 
 * Propagate extra arguments to the Kafka library (e.g. for authentication)
