@@ -1,4 +1,5 @@
 from io import BytesIO
+import copy
 import json
 import logging
 import struct
@@ -21,7 +22,7 @@ logging.getLogger('kafka.conn').setLevel(logging.INFO)
 logging.getLogger('kafka.producer.kafka').setLevel(logging.INFO)
 
 
-def delete_topic(bootstrap_servers: List[str], topic_name: str):
+def delete_topic(topic_name: str, **kwargs):
     """Delete a topic from Kafka.
 
     The topic is deleted synchronously, the function returns when done.
@@ -30,12 +31,14 @@ def delete_topic(bootstrap_servers: List[str], topic_name: str):
 
     Parameters
     ----------
-    bootstrap_servers : list of str
-        The list of Kafka servers
     topic_name : str
         The name of the topic to delete
     """
-    admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    admin_config = copy.copy(KafkaAdminClient.DEFAULT_CONFIG)
+    for key in admin_config:
+        admin_config[key] = kwargs.get(key, admin_config[key])
+
+    admin_client = KafkaAdminClient(**admin_config)
     admin_client.delete_topics([topic_name])
 
 
@@ -125,15 +128,18 @@ def create_topic(
     replication_factor : int
         The replication factor for this topic
     """
+    admin_config = copy.copy(KafkaAdminClient.DEFAULT_CONFIG)
+    admin_config['bootstrap_servers'] = bootstrap_servers
+    # Resets configurations passed by user
+    for key in admin_config:
+        admin_config[key] = kwargs.get(key, admin_config[key])
+
     try:
         # WORKAROUND: see https://github.com/dpkp/kafka-python/pull/2048
         # when done remove this try catch
-        admin_client = KafkaAdminClient(
-            bootstrap_servers=bootstrap_servers,
-            **kwargs,
-        )
+        admin_client = KafkaAdminClient(**admin_config)
     except NoBrokersAvailable:
-        logger.warning('Error instantiating the client, should be solved by'
+        logger.warning('Error instantiating the client, should be solved by '
                        'https://github.com/dpkp/kafka-python/pull/2048')
         return
     try:
@@ -142,6 +148,7 @@ def create_topic(
                 name=topic_name,
                 num_partitions=num_partitions,
                 replication_factor=replication_factor,
+                topic_configs=kwargs,
                 )
         ])
         logger.info(f'Topic created: {topic_name}')
@@ -260,20 +267,25 @@ def prepare_producer(
         schemaless_writer(buf, schema, record)
         return buf.getvalue()
 
+    producer_config = copy.copy(KafkaProducer.DEFAULT_CONFIG)
+    # Default configurations
+    # bootstrap servers
+    producer_config['bootstrap_servers'] = bootstrap_servers
     # notice that the serializer are called even with None, hence the check
-    return KafkaProducer(
-        bootstrap_servers=bootstrap_servers,
-        value_serializer=(
-            avro_record_value_writer if value_schema else None),
-        key_serializer=(
-            avro_record_key_writer if key_schema else None),
-        # compression, note that is done on a whole batch
-        compression_type='gzip',
-        # time to get an initial answer from the brokers when initializing
-        # the default is 2 seconds and in case of slow network breaks the app
-        api_version_auto_timeout_ms=10 * 1000,
-        # accumulate messages for these ms before sending them
-        linger_ms=1000,
-        # propagate extra arguments
-        **kwargs,
-        )
+    producer_config['value_serializer'] = (
+            avro_record_value_writer if value_schema else None)
+    producer_config['key_serializer'] = (
+            avro_record_key_writer if key_schema else None)
+    # compression, note that is done on a whole batch
+    producer_config['compression_type'] = 'gzip'
+    # time to get an initial answer from the brokers when initializing
+    # the default is 2 seconds and in case of slow network breaks the app
+    producer_config['api_version_auto_timeout_ms'] = 10 * 1000
+    # accumulate messages for these ms before sending them
+    producer_config['linger_ms'] = 1000
+
+    # Resets configurations passed by user
+    for key in producer_config:
+        producer_config[key] = kwargs.get(key, producer_config[key])
+
+    return KafkaProducer(**producer_config)

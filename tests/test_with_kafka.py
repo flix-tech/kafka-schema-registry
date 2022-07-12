@@ -104,8 +104,74 @@ def test_publish_messages():
 def test_topic_creation_deletion():
     topic_name = f'test-topic-{uuid.uuid4()}'
     with pytest.raises(UnknownTopicOrPartitionError):
-        delete_topic(['localhost:9092'], topic_name)
+        delete_topic(topic_name, bootstrap_servers=['localhost:9092'])
     create_topic(['localhost:9092'], topic_name, 1, 1)
-    delete_topic(['localhost:9092'], topic_name)
+    delete_topic(topic_name, bootstrap_servers=['localhost:9092'])
     with pytest.raises(UnknownTopicOrPartitionError):
-        delete_topic(['localhost:9092'], topic_name)
+        delete_topic(topic_name, bootstrap_servers=['localhost:9092'])
+
+
+@pytest.mark.skipif(not has_kafka(), reason="No Kafka Cluster running")
+@responses.activate
+def test_correct_config_params():
+    """ prepare_producer() uses two API's:
+         1) KafkaAdminClient -> Creates topics
+         2) KafkaProducer -> sends events to kafka topic
+     Both the above API's config params are not equivalent, this
+     test makes sure correct configs are passed to the respective API's
+     without raising any errors.
+    """
+
+    request_timeout_ms = 30000  # Both API has this config param
+    batch_size = 16384          # Producer specific config
+    cleanup_policy = 'compact'  # Topic specific config
+    topic_name = f'test-topic-{uuid.uuid4()}'
+    responses.add(
+        responses.POST,
+        f'http://schemaregistry/subjects/{topic_name}-value/versions',
+        json=dict(id=2),
+        status=200)
+    producer = prepare_producer(
+        ['localhost:9092'],
+        'http://schemaregistry',
+        topic_name,
+        1,
+        1,
+        value_schema=SAMPLE_SCHEMA,
+        request_timeout_ms=request_timeout_ms,
+        batch_size=batch_size,
+        cleanup_policy=cleanup_policy
+        )
+
+    producer.send(topic_name, {'age': 34})
+    producer.send(topic_name, {'age': 9000, 'name': 'john'})
+
+
+@pytest.mark.skipif(not has_kafka(), reason="No Kafka Cluster running")
+@responses.activate
+def test_incorrect_config_params():
+    """ If invalid config parameters are passed then it silently ignores them
+        and refrains from sending those parameters to the respective API's
+        rather than raising an error. This is preferred because Topic creation
+        do not yet have default configurations list in Kafka-python client.
+        If its introduced in future, then may be throwing error is desirable.
+    """
+    invalid_param = 'dummy'
+    topic_name = f'test-topic-{uuid.uuid4()}'
+    responses.add(
+        responses.POST,
+        f'http://schemaregistry/subjects/{topic_name}-value/versions',
+        json=dict(id=2),
+        status=200)
+    producer = prepare_producer(
+        ['localhost:9092'],
+        'http://schemaregistry',
+        topic_name,
+        1,
+        1,
+        value_schema=SAMPLE_SCHEMA,
+        invalid_param=invalid_param
+        )
+
+    producer.send(topic_name, {'age': 34})
+    producer.send(topic_name, {'age': 9000, 'name': 'john'})
