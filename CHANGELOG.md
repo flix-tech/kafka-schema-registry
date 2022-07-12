@@ -1,6 +1,8 @@
 # Changelog
 
-## [unreleased] -- xxxx-xx-xx
+## [Unreleased] -- YYYY-MM-DD
+
+## [0.1.1] -- 2022-07-12
 
  * Fixed API's config params
 prepare_producer() uses two API's:
