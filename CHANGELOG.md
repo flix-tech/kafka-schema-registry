@@ -2,6 +2,14 @@
 
 ## [unreleased] -- xxxx-xx-xx
 
+ * Fixed API's config params
+prepare_producer() uses two API's:
+	 1. KafkaAdminClient -> creates topics
+	 2. KafkaProducer -> sends events to kafka topic
+Both the above API's config parameters are not equivalent, due to this it was not possible to set parameters which are API specific and raises (Unrecognized configs) error. This change makes sure correct configs are passed to the respective API's.
+
+## [0.1.0] -- 2022-07-12
+
 * Added Python 3.10 to test suite
 
 ## [0.0.4] -- 2022-01-28
