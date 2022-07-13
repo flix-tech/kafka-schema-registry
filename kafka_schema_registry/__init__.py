@@ -129,7 +129,6 @@ def create_topic(
     replication_factor : int
         The replication factor for this topic
     """
-    print(topic_config)
     admin_config = copy.copy(KafkaAdminClient.DEFAULT_CONFIG)
     admin_config['bootstrap_servers'] = bootstrap_servers
     # Resets configurations passed by user
