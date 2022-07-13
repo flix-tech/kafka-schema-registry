@@ -2,6 +2,10 @@
 
 ## [Unreleased] -- YYYY-MM-DD
 
+## [0.1.2] -- 2022-07-13
+
+* Pass per-topic config (used when created a topic) as a dedicated variable, not as part of the Client configs
+
 ## [0.1.1] -- 2022-07-12
 
  * Fixed API's config params
