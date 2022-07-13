@@ -122,9 +122,9 @@ def test_correct_config_params():
      without raising any errors.
     """
 
-    request_timeout_ms = 30000  # Both API has this config param
-    batch_size = 16384          # Producer specific config
-    cleanup_policy = 'compact'  # Topic specific config
+    request_timeout_ms = 30000                      # Common config param
+    batch_size = 16384                              # Producer specific config
+    topic_config = {'cleanup.policy': 'compact'}    # Topic specific config
     topic_name = f'test-topic-{uuid.uuid4()}'
     responses.add(
         responses.POST,
@@ -140,7 +140,7 @@ def test_correct_config_params():
         value_schema=SAMPLE_SCHEMA,
         request_timeout_ms=request_timeout_ms,
         batch_size=batch_size,
-        cleanup_policy=cleanup_policy
+        topic_config=topic_config,
         )
 
     producer.send(topic_name, {'age': 34})
@@ -150,11 +150,9 @@ def test_correct_config_params():
 @pytest.mark.skipif(not has_kafka(), reason="No Kafka Cluster running")
 @responses.activate
 def test_incorrect_config_params():
-    """ If invalid config parameters are passed then it silently ignores them
-        and refrains from sending those parameters to the respective API's
-        rather than raising an error. This is preferred because Topic creation
-        do not yet have default configurations list in Kafka-python client.
-        If its introduced in future, then may be throwing error is desirable.
+    """ If invalid config parameters are passed then AssertionError is raised.
+        Currently there is no way to check the valid topic configurations,
+        hence skipped and depends on the user to provide valid configs.
     """
     invalid_param = 'dummy'
     topic_name = f'test-topic-{uuid.uuid4()}'
@@ -163,15 +161,16 @@ def test_incorrect_config_params():
         f'http://schemaregistry/subjects/{topic_name}-value/versions',
         json=dict(id=2),
         status=200)
-    producer = prepare_producer(
-        ['localhost:9092'],
-        'http://schemaregistry',
-        topic_name,
-        1,
-        1,
-        value_schema=SAMPLE_SCHEMA,
-        invalid_param=invalid_param
-        )
+    with pytest.raises(AssertionError):
+        producer = prepare_producer(
+            ['localhost:9092'],
+            'http://schemaregistry',
+            topic_name,
+            1,
+            1,
+            value_schema=SAMPLE_SCHEMA,
+            invalid_param=invalid_param
+            )
 
-    producer.send(topic_name, {'age': 34})
-    producer.send(topic_name, {'age': 9000, 'name': 'john'})
+        producer.send(topic_name, {'age': 34})
+        producer.send(topic_name, {'age': 9000, 'name': 'john'})

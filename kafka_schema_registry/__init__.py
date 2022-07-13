@@ -111,6 +111,7 @@ def create_topic(
     topic_name: str,
     num_partitions: int,
     replication_factor: int,
+    topic_config: dict = None,
     **kwargs,
 ):
     """Create a topic with the given number of partitions.
@@ -128,6 +129,7 @@ def create_topic(
     replication_factor : int
         The replication factor for this topic
     """
+    print(topic_config)
     admin_config = copy.copy(KafkaAdminClient.DEFAULT_CONFIG)
     admin_config['bootstrap_servers'] = bootstrap_servers
     # Resets configurations passed by user
@@ -148,7 +150,7 @@ def create_topic(
                 name=topic_name,
                 num_partitions=num_partitions,
                 replication_factor=replication_factor,
-                topic_configs=kwargs,
+                topic_configs=topic_config,
                 )
         ])
         logger.info(f'Topic created: {topic_name}')
@@ -164,6 +166,7 @@ def prepare_producer(
     replication_factor: int,
     value_schema: dict = None,
     key_schema: dict = None,
+    topic_config: dict = None,
     **kwargs,
         ):
     """Ensure the topic and the schema exist and returns a producer for it.
@@ -196,11 +199,17 @@ def prepare_producer(
     if value_schema is None and key_schema is None:
         raise ValueError('No key nor value schema was given')
 
+    # Check for valid key, value pairs
+    invalid_key = set(kwargs).difference(set(KafkaProducer.DEFAULT_CONFIG)) \
+                             .difference(set(KafkaAdminClient.DEFAULT_CONFIG))
+    assert not invalid_key, f'Unrecognized configs: {invalid_key}'
+
     create_topic(
         bootstrap_servers,
         topic_name,
         num_partitions,
         replication_factor,
+        topic_config,
         **kwargs,
     )
 
