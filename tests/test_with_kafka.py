@@ -162,7 +162,7 @@ def test_incorrect_config_params():
         json=dict(id=2),
         status=200)
     with pytest.raises(AssertionError):
-        producer = prepare_producer(
+        prepare_producer(
             ['localhost:9092'],
             'http://schemaregistry',
             topic_name,
@@ -171,6 +171,3 @@ def test_incorrect_config_params():
             value_schema=SAMPLE_SCHEMA,
             invalid_param=invalid_param
             )
-
-        producer.send(topic_name, {'age': 34})
-        producer.send(topic_name, {'age': 9000, 'name': 'john'})
