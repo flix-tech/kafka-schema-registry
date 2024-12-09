@@ -10,6 +10,7 @@ from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
 from kafka.errors import TopicAlreadyExistsError, NoBrokersAvailable
 from requests import request
+from requests.exceptions import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
@@ -86,9 +87,14 @@ def publish_schemas(
                 'Content-Type': 'application/json'
                 }
             )
-        if 'id' not in value_resp.json():
+        try:
+            obj = value_resp.json()
+        except JSONDecodeError:
+            logger.error(f'Error decoding response: {value_resp.text}')
+            raise
+        if 'id' not in obj:
             logger.error(f'No id in response: {value_resp.json()}')
-        value_schema_id = value_resp.json()['id']
+        value_schema_id = obj['id']
 
     key_schema_id = None
     if key_schema is not None:
