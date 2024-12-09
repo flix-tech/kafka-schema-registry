@@ -13,6 +13,8 @@ all: lint test
 
 $(VENV): requirements.txt requirements-dev.txt setup.py
 	$(PY) -m venv $(VENV)
+	# required since Python 3.12
+	$(BIN)/pip install setuptools
 	$(BIN)/pip install --upgrade -r requirements.txt
 	$(BIN)/pip install --upgrade -r requirements-dev.txt
 	$(BIN)/pip install -e .
