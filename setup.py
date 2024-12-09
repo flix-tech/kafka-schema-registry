@@ -22,7 +22,7 @@ setup(
     python_requires='>=3.9',
     install_requires=[
         'fastavro',
-        'kafka-python',
+        'kafka-python-ng',
         'requests',
     ],
     packages=['kafka_schema_registry'],
