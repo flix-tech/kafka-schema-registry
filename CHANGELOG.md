@@ -2,6 +2,12 @@
 
 ## [Unreleased] -- YYYY-MM-DD
 
+## [0.2.0] -- 2024-12-09
+
+* Update dependencies
+* Show the raw response in case of JSON errors from th registry
+
+
 ## [0.1.2] -- 2022-07-13
 
 * Pass per-topic config (used when created a topic) as a dedicated variable, not as part of the Client configs
