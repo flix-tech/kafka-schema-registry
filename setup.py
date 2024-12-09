@@ -19,7 +19,7 @@ setup(
         "Changelog": "https://github.com/flix-tech/kafka-schema-registry/blob/master/CHANGELOG.md",  # noqa
         "Source": 'https://github.com/flix-tech/kafka-schema-registry',
     },
-    python_requires='>=3.7',
+    python_requires='>=3.9',
     install_requires=[
         'fastavro',
         'kafka-python',

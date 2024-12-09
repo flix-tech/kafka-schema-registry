@@ -10,7 +10,7 @@ from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
 from kafka.errors import TopicAlreadyExistsError, NoBrokersAvailable
 from requests import request
-from request.exceptions import JSONDecodeError
+from requests.exceptions import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
