@@ -89,7 +89,7 @@ def publish_schemas(
             )
         try:
             obj = value_resp.json()
-        except json.JSONDecodeError:
+        except JSONDecodeError:
             logger.error(f'Error decoding response: {value_resp.text}')
             raise
         if 'id' not in obj:
