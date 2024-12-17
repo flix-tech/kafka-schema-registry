@@ -42,11 +42,10 @@ test: $(VENV)
 lint: $(VENV)
 	$(BIN)/flake8
 
-.PHONY: release
-release: $(VENV)
+.PHONY: build_dist
+build_dist: $(VENV)
 	rm -rf dist
 	$(BIN)/python setup.py sdist bdist_wheel
-	$(BIN)/twine upload dist/*
 
 .PHONY: clean
 clean:
