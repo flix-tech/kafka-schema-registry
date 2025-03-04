@@ -10,7 +10,7 @@ It takes care of:
 
 It works with [kafka-python][], and extra arguments are forwarded to it.
 
-[kafka-python]: https://github.com/wbarnha/kafka-python-ng
+[kafka-python]: https://github.com/dpkp/kafka-python
 
 
 ## Installing
