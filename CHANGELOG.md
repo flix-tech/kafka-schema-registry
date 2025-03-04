@@ -2,10 +2,14 @@
 
 ## [Unreleased] -- YYYY-MM-DD
 
+## [0.2.1] -- 2025-03-04
+
+* Move back to dpkp/kafka-python, it's maintained again
+
 ## [0.2.0] -- 2024-12-09
 
 * Update dependencies
-* Show the raw response in case of JSON errors from th registry
+* Show the raw response in case of JSON errors from the registry
 
 
 ## [0.1.2] -- 2022-07-13
