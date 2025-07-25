@@ -2,6 +2,10 @@
 
 ## [Unreleased] -- YYYY-MM-DD
 
+## [0.2.2] -- 2025-07-25
+
+* Upgrade Kafka-python to 2.2.15
+
 ## [0.2.1] -- 2025-03-04
 
 * Move back to dpkp/kafka-python, it's maintained again
