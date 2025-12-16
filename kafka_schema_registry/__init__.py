@@ -232,7 +232,7 @@ def prepare_producer(
 
     parsed_key_schema = None
     default_keys = {}
-    if key_schema is not None:
+    if key_schema is not None and key_schema != "string":
         parsed_key_schema = parse_schema(key_schema)
         # store the default values to remove
         # the values from the messages when identical
