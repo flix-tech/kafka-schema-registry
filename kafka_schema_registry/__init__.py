@@ -232,15 +232,16 @@ def prepare_producer(
 
     parsed_key_schema = None
     default_keys = {}
-    if key_schema is not None and key_schema != "string":
+    if key_schema is not None:
         parsed_key_schema = parse_schema(key_schema)
-        # store the default values to remove
-        # the values from the messages when identical
-        default_keys = {
-            field['name']: field['default']
-            for field in parsed_key_schema['fields']
-            if 'default' in field
-        }
+        if key_schema != "string":
+            # store the default values to remove
+            # the values from the messages when identical
+            default_keys = {
+                field['name']: field['default']
+                for field in parsed_key_schema['fields']
+                if 'default' in field
+            }
 
     key_schema_id, value_schema_id = publish_schemas(
         topic_name,
