@@ -8,7 +8,7 @@ from typing import List
 from fastavro import parse_schema, schemaless_writer
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
-from kafka.errors import TopicAlreadyExistsError, NoBrokersAvailable
+from kafka.errors import TopicAlreadyExistsError, KafkaTimeoutError
 from requests import request
 from requests.exceptions import JSONDecodeError
 
@@ -145,7 +145,7 @@ def create_topic(
         # WORKAROUND: see https://github.com/dpkp/kafka-python/pull/2048
         # when done remove this try catch
         admin_client = KafkaAdminClient(**admin_config)
-    except NoBrokersAvailable:
+    except KafkaTimeoutError:
         logger.warning('Error instantiating the client, should be solved by '
                        'https://github.com/dpkp/kafka-python/pull/2048')
         return
