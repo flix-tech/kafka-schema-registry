@@ -295,7 +295,7 @@ def prepare_producer(
     producer_config['compression_type'] = 'gzip'
     # time to get an initial answer from the brokers when initializing
     # the default is 2 seconds and in case of slow network breaks the app
-    producer_config['api_version_auto_timeout_ms'] = 10 * 1000
+    producer_config['bootstrap_timeout_ms'] = 10 * 1000
     # accumulate messages for these ms before sending them
     producer_config['linger_ms'] = 1000
 
